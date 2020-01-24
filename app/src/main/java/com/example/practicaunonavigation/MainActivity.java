@@ -1,102 +1,83 @@
 package com.example.practicaunonavigation;
 
-import android.content.Intent;
+
+
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.view.Menu;
-import android.view.MenuInflater;
-import android.view.MenuItem;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
-import android.widget.Switch;
+import android.widget.EditText;
+import android.widget.TextView;
+
+import com.example.practicaunonavigation.rest.adapter.MarketAdapter;
+import com.example.practicaunonavigation.rest.model.Post;
+import com.example.practicaunonavigation.ui.AdaptadorPost;
+
+import java.security.acl.Owner;
+import java.util.ArrayList;
+import java.util.List;
+
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 public class MainActivity extends AppCompatActivity {
 
-    Button btnLogin,btnGuardar,btnBuscar,btnPasarParametro;
+    ArrayList<Post> listaPost;
+    RecyclerView recyclerViewPost;
+    TextView textViewTittle,textViewdescription,textViewUrl;
+
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        textViewTittle = findViewById(R.id.textViewTittle);
+        textViewdescription = findViewById(R.id.textViewDescription);
+        textViewUrl = findViewById(R.id.textViewUrl);
 
-        btnLogin=(Button)findViewById(R.id.btnLogin);
-        btnGuardar=(Button) findViewById(R.id.btnGuardar);
-        btnBuscar=(Button) findViewById(R.id.btnBuscar);
-        btnPasarParametro=(Button) findViewById(R.id.btnPasarParametro);
+         listaPost = new ArrayList<>();
+        recyclerViewPost = (RecyclerView)findViewById(R.id.recyclerViewPost);
 
-        btnLogin.setOnClickListener(new View.OnClickListener() {
+        recyclerViewPost.setLayoutManager(new LinearLayoutManager(this));
+
+        mostrarDatos();
+
+    }
+
+    private void mostrarDatos(){
+        MarketAdapter adapter = new MarketAdapter();
+        Call<List<Post>> call = adapter.getPosts();
+        call.enqueue(new Callback<List<Post>>() {
             @Override
-            public void onClick(View v) {
+            public void onResponse(Call<List<Post>> call, Response<List<Post>> response) {
+                List<Post> lista = response.body();
+                for (Post post: lista
+                ) {
+                    Log.e("Url", post.getUrlImage());
 
-                Intent intent =new Intent(MainActivity.this, LoginActivity.class);
-                startActivity(intent);
+                    listaPost.add(post);
+                }
+                AdaptadorPost adaptadorPost = new AdaptadorPost(listaPost);
+                recyclerViewPost.setAdapter(adaptadorPost);
+
             }
-        });
 
-        btnGuardar.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onClick(View v) {
-
-                Intent intent =new Intent(MainActivity.this, GuardarActivity.class);
-                startActivity(intent);
-            }
-        });
-
-        btnBuscar.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-
-                Intent intent =new Intent(MainActivity.this, BuscarActivity.class);
-                startActivity(intent);
-            }
-        });
+            public void onFailure(Call<List<Post>> call, Throwable t) {
 
 
-        btnPasarParametro.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-
-                Intent intent =new Intent(MainActivity.this, PasarParametroActivity.class);
-                startActivity(intent);
             }
         });
     }
 
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu){
-
-        MenuInflater inflater = getMenuInflater();
-        inflater.inflate(R.menu.menu, menu);
-
-        return true;
-
-    }
-
-    public boolean onOptionsItemSelected(MenuItem item){
-
-        Intent intent;
-
-        switch (item.getItemId()){
-            case R.id.opcionLogin:
-                intent = new Intent (MainActivity.this, LoginActivity.class);
-                        startActivity(intent);
-                break;
-
-        }
-
-        switch (item.getItemId()){
-            case R.id.opcionRegistrar:
-                intent = new Intent (MainActivity.this, PasarParametroActivity.class);
-                startActivity(intent);
-                break;
 
 
-        }
-
-
-        return true;
-    }
 }
 
 
